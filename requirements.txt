@@ -2,3 +2,4 @@ tweepy
 requests
 wget
 python-dotenv
+chatterbot 
