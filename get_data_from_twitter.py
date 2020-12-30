@@ -32,20 +32,19 @@ class MyAnalStream(tweepy.StreamListener):
 
 
 
-class file_operations(object):
-    @classmethod
-    def searchUser(cls, username):
-        AssholeStream = MyAnalStream()
-        shitStream = tweepy.Stream(auth = api.auth, listener=AssholeStream)
-        shitStream.filter(track=username, languages=['en'])
+  
+def searchUser(cls, username):
+     AssholeStream = MyAnalStream()
+     shitStream = tweepy.Stream(auth = api.auth, listener=AssholeStream)
+     shitStream.filter(track=username, languages=['en'])
 
 
-    @classmethod
-    def searchApi(cls, hashtags, user, file):
-        a = open('tweets.txt', 'a', encoding='cp437', errors='ignore')
-        for i in api.search([hashtags, user],  languages=['en'], tweet_mode='extended' ):
-            a.write('\n' + i.full_text)
-            print(i.full_text)
+    
+def searchApi(hashtags, user, file):
+     a = open('tweets.txt', 'a', encoding='cp437', errors='ignore')
+      for i in api.search([hashtags, user],  languages=['en'], tweet_mode='extended' ):
+          a.write('\n' + i.full_text)
+          print(i.full_text)
 
 
 
@@ -55,4 +54,3 @@ class file_operations(object):
 #nst.remove_single_chars('tweets.txt', 'clean_tweets.txt')
 #inst.remove_special_chars('shit.txt', 'clean_tweets.txt')
 
-file_operations.searchUser(["Olive Garden"])
