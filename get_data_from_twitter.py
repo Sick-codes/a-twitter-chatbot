@@ -1,7 +1,8 @@
 import tweepy
 import tweepy.streaming
 from dotenv import load_dotenv
-import json
+import jsonimport pickle
+
 import os
 from clean_data import sick
 load_dotenv()
@@ -33,7 +34,7 @@ class MyAnalStream(tweepy.StreamListener):
 
 
   
-def searchUser(cls, username):
+def searchUser username):
      AssholeStream = MyAnalStream()
      shitStream = tweepy.Stream(auth = api.auth, listener=AssholeStream)
      shitStream.filter(track=username, languages=['en'])
