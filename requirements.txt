@@ -4,3 +4,5 @@ wget
 python-dotenv
 chatterbot 
 pickle
+spacy
+numpy
