@@ -3,3 +3,4 @@ requests
 wget
 python-dotenv
 chatterbot 
+pickle
