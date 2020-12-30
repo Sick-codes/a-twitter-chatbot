@@ -1,7 +1,8 @@
 import tweepy
 import tweepy.streaming
 from dotenv import load_dotenv
-import jsonimport pickle
+import json
+import pickle
 
 import os
 from clean_data import sick
