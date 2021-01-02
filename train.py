@@ -8,10 +8,8 @@ trainer =  ChatterBotCorpusTrainer(bot)
 trainer1 = ListTrainer(bot)
 #a = open('C:\\Users\\cj\\pythonProject1\\chatbot\\ml-chatbot\\TwitterConvCorpus.txt', errors='ignore')
 trainer.train(
-    #"chatterbot.corpus.english.greetings",
-    "chatterbot.corpus.english"
-#
-)
+    "chatterbot.corpus.english.greetings",
+    "chatterbot.corpus.english")
 
 
 

@@ -3,6 +3,7 @@ requests
 wget
 python-dotenv
 chatterbot 
-pickle
-spacy
+spacy==2.1
 numpy
+chatterbot_corpus
+pyyaml==5.1

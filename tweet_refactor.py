@@ -1,103 +1,76 @@
-import re
 import os
+from clean_data import clean_text
 import sqlite3
-import time
 from chatbot import bot
-from clean_data import sick
 import tweepy.streaming
 from markovbot import MarkovBot
 from dotenv import load_dotenv
+import time
 
-
-load_dotenv()
-access_key = os.environ.get('ACESS_TOKEN')
-access_secret = os.environ.get('key_secret')
-access = os.environ.get('access')
-spoop = os.environ.get('soopy')
-auth = tweepy.OAuthHandler(access_key, access_secret)
-auth.set_access_token(access, spoop)
+auth = tweepy.OAuthHandler('h4U32ZuULZzCXWSxbW056ah1y', '5XGi2f9gVtqRAfPioQvwYxuNdQFxpT7lX3WXPZoo9a2WXDeDpb')
+auth.set_access_token('1323402718124347393-xXlIChPtqWC6jad2laZI91uW1yN5MR',
+                      'NoDUxrtgC57VjQIGOxlTkKHzgW9yGFz9MkGSAIe3f7iZg')
 api = tweepy.API(auth, wait_on_rate_limit=True)
-
-
 conn = sqlite3.connect('tweets.db', check_same_thread=False)
 c = conn.cursor()
 demBot = MarkovBot()
 
 
+def create_table():
+    c.execute('CREATE TABLE tweets(id INT)')
 
 
+def delete_data(data):
+    c.execute('DELETE FROM tweets WHERE id=?', (data,))
+    conn.commit()
 
 
-
-class Utils(object):
-    @classmethod
-    def bot_response(self, text):
-        return bot.get_response(sick.clean_text(
-                ['@', 'http', '#'], text))
+def bot_response(text):
+    return bot.get_response(clean_text(
+        ['@', 'http', '#'], text))
 
 
-    @classmethod
-    def gen_text(self, file='', amount=1):
-        inst = MarkovBot()
-        inst.read(file)
-      #  while True:
-        sick = []
-        for i in range(amount):
-           text = inst.generate_text(25, seedword=[''])
-           sick.append(text)
-        return sick
+def gen_text(file='', amount=1):
+    inst = MarkovBot()
+    inst.read(file)
+    #  while True:
+    sick = []
+    for i in range(amount):
+        text = inst.generate_text(25, seedword=[''])
+        sick.append(text)
+    return sick
 
 
+def check_id(id_):
+    c.execute('SELECT * FROM tweets WHERE id=? ', (id_,))
+    return str(id_) in str(c.fetchall())
 
 
-
-class db(Utils):
-    @classmethod
-    def check_id(cls, id_):
-        c.execute('SELECT * FROM tweets WHERE id=? ', (id_,))
-        print(str(id_) in str(c.fetchall()))
-
-
-
-    def getData(self):
-        c.execute('SELECT * FROM tweets')
-        return c.fetchall()
+def insert_data(id_):
+    if check_id(id_):
+        print('sorry it already exists')
+    else:
+        c.execute('INSERT INTO tweets values(?)', (id_,))
+        conn.commit()
+        print('yay')
 
 
-    def create_table(self):
-        c.execute('CREATE TABLE tweets(id INT)')
-
-
-
-    @classmethod
-    def insert_data(cls, id_):
-        if db.check_id(id_):print('sorry it already exists')
-        else:
-            c.execute('INSERT INTO tweets values(?)', (id_,))
-            conn.commit()
-            print('yay')
-
-
-    @classmethod
-    def remove_duplicates(cls, id_):
-        c.execute('SELECT * FROM tweets WHERE id=?',
-                     (id_,))
-        if len(c.fetchall()) > 1:
-            c.execute('DELETE FROM tweets WHERE id=?', (id_,))
-            c.execute('INSERT INTO tweets WHERE id=?', (id_,))
-            conn.commit()
-        else:return 'e'
-
-
+def remove_duplicates(id_):
+    c.execute('SELECT * FROM tweets WHERE id=?', (id_,))
+    if len(c.fetchall()) > 1:
+        c.execute('DELETE FROM tweets WHERE id=?', (id_,))
+        c.execute('INSERT INTO tweets WHERE id=?', (id_,))
+        conn.commit()
+    else:
+        return 'e'
 
 
 class SickStream(tweepy.StreamListener):
     def on_status(self, status):
-        try:
-            print(status.text, status.id)
-            db.insert_data(status.id)
-        except Exception:print('ad')
-
+        x = bot_response(status.text)
+        time.sleep(30)
+        api.update_status(f'@{status.user.screen_name}', x)
+        print(x)
 
     def on_error(self, code):
         if code == 420:
@@ -105,76 +78,62 @@ class SickStream(tweepy.StreamListener):
             return False
 
 
+def keywords(search_word):
+    for i in api.search(search_word, tweet_mode='extended'):
+        insert_data(i.id)
+        print(i.full_text)
 
 
-class Search(object):
-    def keywords(self,  search_word):
-        for i in api.search(search_word, tweet_mode='extended'):
-            db.insert_data(i.id)
-            print(i.full_text)
+def tweet_stream(search_word):
+    sick_instance = SickStream()
+    stream = tweepy.Stream(auth=api.auth, listener=sick_instance)
+    stream.filter(track=search_word, languages=['en'])
 
 
-    def Stream(self,  searchWord):
-        sickInstance = SickStream()
-        stream = tweepy.Stream(auth=api.auth, listener=sickInstance)
-        stream.filter(track=searchWord, languages=['en'])
+def get_replies(user_id):
+    gang = api.search(q=f'to:{user_id}',
+                      result_type='new')
+    for i in gang:
+        insert_data(i.id)
+        print(i.id)
 
 
-    def get_replies(self, user_id):
-        gang = api.search(q=f'to:{user_id}',
-                result_type='all')
-        for i in gang:
-            db.insert_data(i.id)
-            print(i.id)
+def user(user_name):
+    gang = api.user_timeline(user_name)
+    for tweet_text in gang:
+        insert_data(tweet_text.id)
+        print(tweet_text.text)
 
 
-
-    def user(self, user_name):
-        gang = api.user_timeline(user_name)
-        for tweet_text in gang:
-            db.insert_data(tweet_text.id)
-            print(tweet_text.text)
+def tweet(text):
+    api.update_status(text)
 
 
-    def UpdateStatus(self, text):
-        api.update_status(text)
+def keywords_database(keyword, amount):
+    c.execute('SELECT * FROM tweets')
+    for i, l in enumerate(c.fetchall()):
+       # print(i)
+        tweets = api.get_status(1345014550404374534)
+        print(tweets.text)
+        #if keyword in tweets.text:
+         #   print('ae')
+#
+
+def to_status(tweet_id):
+    text = api.get_status(tweet_id, tweet_mode='extended')
+    gang = bot_response(text.full_text)
+    api.update_status(gang, in_reply_to_status_id=text.id)
+    print(gang)
 
 
-
-class reply(Search):
-    @classmethod
-    def database(cls, amount):
-        c.execute('SELECT * FROM tweets')
-        for i in range(amount):
-            pass
-
-
-
-    @classmethod
-    def to_status(cls, tweet_id):
-        try:
-            text = api.get_status(tweet_id)
-            print(text.text)
-            gang = Utils.bot_response(text.text)
-            api.update_status(gang, in_reply_to_status_id=text.id)
-            print(gang)
-        except Exception as e:print(e)
- 
-
-    @classmethod
-    def tag(cls):
-        for i in api.search('#ask_ml', tweet_mode='extended'):
-            db.insert_data(i.id)
-            resp = Utils.bot_response(i.full_text)
-            print(i.id)
-            if db.check_id(i.id) == True:
-                print('so sorry')
-            else:
-                resp = Utils.bot_response(i.full_text)
-                api.update_status(f'@{i.user.screen_name} {resp}')
+def tag():
+    for i in api.search('#ask_ml', tweet_mode='extended'):
+        insert_data(i.id)
+        if check_id(i.id):
+            print('so sorry')
+        else:
+            resp = bot_response(i.full_text)
+            api.update_status(f'@{i.user.screen_name}', resp)
 
 
-search = Search()
-inst2 = reply()
-instance = Utils()
-database = db()
+keywords_database('hello', 1)
