@@ -7,9 +7,8 @@ from markovbot import MarkovBot
 from dotenv import load_dotenv
 import time
 
-auth = tweepy.OAuthHandler('h4U32ZuULZzCXWSxbW056ah1y', '5XGi2f9gVtqRAfPioQvwYxuNdQFxpT7lX3WXPZoo9a2WXDeDpb')
-auth.set_access_token('1323402718124347393-xXlIChPtqWC6jad2laZI91uW1yN5MR',
-                      'NoDUxrtgC57VjQIGOxlTkKHzgW9yGFz9MkGSAIe3f7iZg')
+auth = tweepy.OAuthHandler(')
+auth.set_access_token(')
 api = tweepy.API(auth, wait_on_rate_limit=True)
 conn = sqlite3.connect('tweets.db', check_same_thread=False)
 c = conn.cursor()
