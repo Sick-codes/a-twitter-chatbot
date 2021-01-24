@@ -33,11 +33,7 @@ def gen_text(file='', amount=1):
     inst = MarkovBot()
     inst.read(file)
     #  while True:
-    sick = []
-    for i in range(amount):
-        text = inst.generate_text(25, seedword=[''])
-        sick.append(text)
-    return sick
+    return [inst.generate_text(seed=[], 25) for i in range(amount)]
 
 
 def check_id(id_):
