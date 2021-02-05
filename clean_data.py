@@ -36,8 +36,8 @@ def remove_single_chars(infile, outfile='clean.txt'):
 
 
 def remove_tags(data):
-    new_text = re.sub(r'@\S+', '', data)
-    return new_text
+    return re.sub(r'@\S+', '', data)
+    
     # lmao oops
 
 
